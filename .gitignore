@@ -1,0 +1,18 @@
+# Dependências
+/vendor/
+
+# Ambiente (credenciais)
+.env
+.env.local
+.env.*.local
+
+# Logs e uploads
+/storage/logs/*.log
+/storage/logs/*.log
+
+# Sistema
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo

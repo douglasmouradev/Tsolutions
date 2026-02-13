@@ -1,0 +1,96 @@
+/* T Solutions - Estilos */
+body {
+    padding-top: 4rem;
+    background-color: #fff;
+}
+
+body.page-login {
+    background-color: #0a0e14;
+    background-image: url('/assets/fundo-tech.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+body.page-login::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.25);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.navbar {
+    z-index: 1030;
+}
+
+.logo-titanium-bar {
+    z-index: 1050;
+    background: transparent;
+}
+
+.logo-titanium-nav {
+    background: transparent;
+    padding-left: 1rem;
+}
+
+.logo-titanium-nav img,
+.logo-corporation {
+    display: block;
+    object-fit: contain;
+}
+
+:root {
+    --bs-body-font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    flex: 1;
+}
+
+.card {
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    background: #fff;
+}
+
+body.page-login .card {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    background: rgba(255, 255, 255, 0.97);
+}
+
+.table th {
+    font-weight: 600;
+}
+
+.badge {
+    font-weight: 500;
+}
+
+.alert {
+    border-radius: 0.375rem;
+}
+
+.navbar-brand {
+    font-weight: 600;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.list-group-item {
+    border-left: 0;
+    border-right: 0;
+}
