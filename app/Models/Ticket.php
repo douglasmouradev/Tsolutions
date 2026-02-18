@@ -25,6 +25,7 @@ class Ticket extends BaseModel
         'n_cl', 'n_tarefa_remessa', 'endereco', 'bairro', 'cidade', 'uf', 'cep', 'data_vencimento_ch',
         'data_disponibilidade', 'hora_disponibilidade', 'operacao', 'intercorrencias', 'observacao_tecnico',
         'nome_tecnico', 'cpf_tecnico', 'rg_tecnico', 'data_atendimento', 'hora_atendimento',
+        'valor_tecnico', 'modalidade_tecnico',
     ];
 
     public function create(array $data): int
@@ -79,6 +80,12 @@ class Ticket extends BaseModel
         $sql = 'UPDATE tickets SET ' . implode(', ', $set) . ' WHERE id = ?';
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute($params);
+    }
+
+    public function delete(int $id): bool
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM tickets WHERE id = ?');
+        return $stmt->execute([$id]);
     }
 
     public function findWithRelations(int $id): ?array

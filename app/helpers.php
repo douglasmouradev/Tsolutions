@@ -45,6 +45,21 @@ if (!function_exists('formatDate')) {
     }
 }
 
+if (!function_exists('roleLabel')) {
+    function roleLabel(?string $role): string
+    {
+        $labels = [
+            'admin' => 'Admin',
+            'agent' => 'Agente',
+            'requester' => 'Solicitante',
+            'diretoria' => 'Diretoria',
+            'externo' => 'Externo',
+            'suporte' => 'Suporte',
+        ];
+        return $labels[$role] ?? ucfirst((string) $role);
+    }
+}
+
 if (!function_exists('priorityLabel')) {
     function priorityLabel(?string $priority): string
     {

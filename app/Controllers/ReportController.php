@@ -30,8 +30,8 @@ class ReportController
     public function index(): void
     {
         $categories = $this->categoryModel->all();
-        $agents = $this->authService->hasRole(['admin', 'agent']) ? $this->userModel->findAllAgents() : [];
-        $requesters = $this->authService->hasRole(['admin', 'agent']) ? $this->userModel->findAllRequesters() : [];
+        $agents = $this->authService->hasRole(['admin', 'agent', 'diretoria', 'suporte']) ? $this->userModel->findAllAgents() : [];
+        $requesters = $this->authService->hasRole(['admin', 'agent', 'diretoria', 'suporte']) ? $this->userModel->findAllRequesters() : [];
         $currentUser = $this->authService->currentUser();
         require __DIR__ . '/../Views/reports/index.php';
     }
@@ -138,7 +138,7 @@ class ReportController
             'date_to' => $_GET['date_to'] ?? '',
             'q' => $_GET['q'] ?? '',
         ];
-        if ($user['role'] === 'requester') {
+        if (in_array($user['role'], ['requester', 'externo'], true)) {
             $filters['requester_id'] = (string) $user['id'];
         }
         return $filters;

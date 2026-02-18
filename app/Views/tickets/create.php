@@ -45,16 +45,11 @@ require __DIR__ . '/../partials/nav.php';
                     <div class="col-md-4 mb-3">
                         <label for="sla_prazo" class="form-label">Prazo SLA</label>
                         <select name="sla_prazo" id="sla_prazo" class="form-select">
-                            <option value="prioridade" <?= ($old['sla_prazo'] ?? '') === 'prioridade' ? 'selected' : '' ?>>Padrão da prioridade</option>
-                            <option value="nbd" <?= ($old['sla_prazo'] ?? '') === 'nbd' ? 'selected' : '' ?>>NBD (Úteis)</option>
-                            <option value="d1" <?= ($old['sla_prazo'] ?? '') === 'd1' ? 'selected' : '' ?>>D+1 (Úteis)</option>
-                            <option value="d2" <?= ($old['sla_prazo'] ?? '') === 'd2' ? 'selected' : '' ?>>D+2 (Úteis)</option>
-                            <option value="24" <?= ($old['sla_prazo'] ?? '') === '24' ? 'selected' : '' ?>>24 horas</option>
-                            <option value="48" <?= ($old['sla_prazo'] ?? '') === '48' ? 'selected' : '' ?>>48 horas</option>
-                            <option value="72" <?= ($old['sla_prazo'] ?? '') === '72' ? 'selected' : '' ?>>72 horas (3 dias)</option>
-                            <option value="120" <?= ($old['sla_prazo'] ?? '') === '120' ? 'selected' : '' ?>>5 dias</option>
-                            <option value="168" <?= ($old['sla_prazo'] ?? '') === '168' ? 'selected' : '' ?>>7 dias</option>
-                            <option value="336" <?= ($old['sla_prazo'] ?? '') === '336' ? 'selected' : '' ?>>14 dias</option>
+                            <option value="prioridade" <?= ($old['sla_prazo'] ?? 'prioridade') === 'prioridade' ? 'selected' : '' ?>>Padrão da prioridade</option>
+                            <option value="nbd" <?= ($old['sla_prazo'] ?? '') === 'nbd' ? 'selected' : '' ?>>NBD</option>
+                            <option value="d1" <?= ($old['sla_prazo'] ?? '') === 'd1' ? 'selected' : '' ?>>D+1</option>
+                            <option value="d2" <?= ($old['sla_prazo'] ?? '') === 'd2' ? 'selected' : '' ?>>D+2</option>
+                            <option value="8" <?= ($old['sla_prazo'] ?? '') === '8' ? 'selected' : '' ?>>8 Hrs</option>
                             <option value="personalizado" <?= ($old['sla_prazo'] ?? '') === 'personalizado' ? 'selected' : '' ?>>Data personalizada</option>
                         </select>
                         <div id="due_at_wrapper" class="mt-2" style="display:none">
@@ -138,6 +133,17 @@ require __DIR__ . '/../partials/nav.php';
                     <div class="col-md-4 mb-2"><label class="form-label">RG</label><input type="text" name="rg_tecnico" class="form-control form-control-sm" value="<?= $val('rg_tecnico') ?>"></div>
                     <div class="col-md-4 mb-2"><label class="form-label">Data do atendimento</label><input type="date" name="data_atendimento" class="form-control form-control-sm" value="<?= $val('data_atendimento') ?>"></div>
                     <div class="col-md-4 mb-2"><label class="form-label">Hora do atendimento</label><input type="time" name="hora_atendimento" class="form-control form-control-sm" value="<?= $val('hora_atendimento') ?>"></div>
+                    <?php if ($currentUser && in_array($currentUser['role'] ?? '', ['admin', 'agent', 'diretoria', 'suporte'], true)): ?>
+                    <div class="col-md-4 mb-2"><label class="form-label">Valor do técnico</label><input type="text" name="valor_tecnico" class="form-control form-control-sm" placeholder="0,00" value="<?= $val('valor_tecnico') ?>"></div>
+                    <div class="col-md-4 mb-2">
+                        <label class="form-label">Modalidade</label>
+                        <select name="modalidade_tecnico" class="form-select form-select-sm">
+                            <option value="">Selecione</option>
+                            <option value="Chamado" <?= ($old['modalidade_tecnico'] ?? '') === 'Chamado' ? 'selected' : '' ?>>Chamado</option>
+                            <option value="Diária" <?= ($old['modalidade_tecnico'] ?? '') === 'Diária' ? 'selected' : '' ?>>Diária</option>
+                        </select>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

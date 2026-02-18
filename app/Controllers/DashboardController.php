@@ -20,6 +20,7 @@ class DashboardController
         $counts = $this->ticketModel->countByStatus();
         $lastTickets = $this->ticketModel->getLastUpdated(10);
         $currentUser = $this->authService->currentUser();
+        $authService = $this->authService;
         require __DIR__ . '/../Views/dashboard/index.php';
     }
 }

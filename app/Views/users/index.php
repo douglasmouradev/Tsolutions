@@ -26,6 +26,9 @@ require __DIR__ . '/../partials/nav.php';
                         <option value="requester">Solicitante</option>
                         <option value="agent">Agente</option>
                         <option value="admin">Admin</option>
+                        <option value="diretoria">Diretoria</option>
+                        <option value="externo">Externo</option>
+                        <option value="suporte">Suporte</option>
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -51,7 +54,7 @@ require __DIR__ . '/../partials/nav.php';
                         <td><?= e((string) $u['id']) ?></td>
                         <td><?= e($u['name']) ?></td>
                         <td><?= e($u['email']) ?></td>
-                        <td><span class="badge bg-secondary"><?= e($u['role']) ?></span></td>
+                        <td><span class="badge bg-secondary"><?= e(roleLabel($u['role'])) ?></span></td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>

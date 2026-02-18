@@ -64,15 +64,22 @@ require __DIR__ . '/../partials/nav.php';
         'operacao' => 'Operação', 'intercorrencias' => 'Intercorrências', 'observacao_tecnico' => 'Observação sobre o técnico',
         'nome_tecnico' => 'Nome do técnico', 'cpf_tecnico' => 'CPF', 'rg_tecnico' => 'RG',
         'data_atendimento' => 'Data do atendimento', 'hora_atendimento' => 'Hora do atendimento',
+        'valor_tecnico' => 'Valor do técnico', 'modalidade_tecnico' => 'Modalidade',
     ];
+    $podeVerValorModalidade = $currentUser && in_array($currentUser['role'] ?? '', ['admin', 'agent', 'diretoria', 'suporte'], true);
     $planilhaPreenchidos = [];
     foreach ($planilhaLabels as $key => $label) {
+        if (in_array($key, ['valor_tecnico', 'modalidade_tecnico'], true) && !$podeVerValorModalidade) {
+            continue;
+        }
         $v = $ticket[$key] ?? null;
         if ($v !== null && $v !== '') {
             if (in_array($key, ['data_postagem', 'data_vencimento_ch', 'data_disponibilidade', 'data_atendimento'], true)) {
                 $v = formatDate($v);
             } elseif (in_array($key, ['hora_disponibilidade', 'hora_atendimento'], true)) {
                 $v = date('H:i', strtotime($v));
+            } elseif ($key === 'valor_tecnico' && is_numeric($v)) {
+                $v = 'R$ ' . number_format((float) $v, 2, ',', '.');
             }
             $planilhaPreenchidos[$label] = $v;
         }
@@ -116,7 +123,7 @@ require __DIR__ . '/../partials/nav.php';
     </div>
     <?php endif; ?>
 
-    <?php if ($currentUser && in_array($currentUser['role'], ['admin', 'agent'], true)): ?>
+    <?php if ($currentUser && in_array($currentUser['role'], ['admin', 'agent', 'diretoria', 'suporte'], true)): ?>
     <div class="card mb-4">
         <div class="card-header">Atribuir agente</div>
         <div class="card-body">

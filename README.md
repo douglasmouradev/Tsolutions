@@ -21,11 +21,11 @@ Sistema de chamados (tickets) estilo CRM em PHP nativo com arquitetura MVC.
    - `APP_URL` - URL base da aplicação (ex: http://localhost:8000)
    - `TIMEZONE` - fuso horário para exibição (ex: America/Sao_Paulo)
 
-3. Crie o banco de dados e execute o schema:
+3. Crie o banco de dados e execute o schema completo:
    ```bash
    mysql -u root -p < database.sql
    ```
-   Ou importe manualmente o conteúdo de `database.sql` no MySQL.
+   O arquivo `database.sql` contém todo o schema unificado (usuários, chamados, técnicos, unidades, etc.).
 
 4. Instale as dependências:
    ```bash

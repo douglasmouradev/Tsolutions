@@ -121,27 +121,27 @@ $routes = [
         },
         '/users' => function () use ($authMiddleware, $userController) {
             $authMiddleware->handle();
-            $authMiddleware->requireRole(['admin']);
+            $authMiddleware->requireRole(['admin', 'diretoria']);
             $userController->index();
         },
         '/categories' => function () use ($authMiddleware, $categoryController) {
             $authMiddleware->handle();
-            $authMiddleware->requireRole(['admin']);
+            $authMiddleware->requireRole(['admin', 'diretoria']);
             $categoryController->index();
         },
         '/tecnicos' => function () use ($authMiddleware, $tecnicoController) {
             $authMiddleware->handle();
-            $authMiddleware->requireRole(['admin']);
+            $authMiddleware->requireRole(['admin', 'diretoria']);
             $tecnicoController->index();
         },
         '/tecnicos/{id}/edit' => function (int $id) use ($authMiddleware, $tecnicoController) {
             $authMiddleware->handle();
-            $authMiddleware->requireRole(['admin']);
+            $authMiddleware->requireRole(['admin', 'diretoria']);
             $tecnicoController->edit($id);
         },
         '/unidades' => function () use ($authMiddleware, $unidadeController) {
             $authMiddleware->handle();
-            $authMiddleware->requireRole(['admin']);
+            $authMiddleware->requireRole(['admin', 'diretoria']);
             $unidadeController->index();
         },
         '/reports' => function () use ($authMiddleware, $reportController) {
@@ -179,6 +179,10 @@ $routes = [
             $authMiddleware->handle();
             $ticketController->changeStatus($id);
         },
+        '/tickets/{id}/delete' => function (int $id) use ($authMiddleware, $ticketController) {
+            $authMiddleware->handle();
+            $ticketController->delete($id);
+        },
         '/tickets/{id}/assign' => function (int $id) use ($authMiddleware, $ticketController) {
             $authMiddleware->handle();
             $ticketController->assign($id);
@@ -193,52 +197,52 @@ $routes = [
         },
         '/users' => function () use ($authMiddleware, $userController) {
             $authMiddleware->handle();
-            $authMiddleware->requireRole(['admin']);
+            $authMiddleware->requireRole(['admin', 'diretoria']);
             $userController->store();
         },
         '/categories' => function () use ($authMiddleware, $categoryController) {
             $authMiddleware->handle();
-            $authMiddleware->requireRole(['admin']);
+            $authMiddleware->requireRole(['admin', 'diretoria']);
             $categoryController->store();
         },
         '/categories/{id}/update' => function (int $id) use ($authMiddleware, $categoryController) {
             $authMiddleware->handle();
-            $authMiddleware->requireRole(['admin']);
+            $authMiddleware->requireRole(['admin', 'diretoria']);
             $categoryController->update($id);
         },
         '/categories/{id}/delete' => function (int $id) use ($authMiddleware, $categoryController) {
             $authMiddleware->handle();
-            $authMiddleware->requireRole(['admin']);
+            $authMiddleware->requireRole(['admin', 'diretoria']);
             $categoryController->delete($id);
         },
         '/tecnicos' => function () use ($authMiddleware, $tecnicoController) {
             $authMiddleware->handle();
-            $authMiddleware->requireRole(['admin']);
+            $authMiddleware->requireRole(['admin', 'diretoria']);
             $tecnicoController->store();
         },
         '/tecnicos/{id}/update' => function (int $id) use ($authMiddleware, $tecnicoController) {
             $authMiddleware->handle();
-            $authMiddleware->requireRole(['admin']);
+            $authMiddleware->requireRole(['admin', 'diretoria']);
             $tecnicoController->update($id);
         },
         '/tecnicos/{id}/delete' => function (int $id) use ($authMiddleware, $tecnicoController) {
             $authMiddleware->handle();
-            $authMiddleware->requireRole(['admin']);
+            $authMiddleware->requireRole(['admin', 'diretoria']);
             $tecnicoController->delete($id);
         },
         '/unidades' => function () use ($authMiddleware, $unidadeController) {
             $authMiddleware->handle();
-            $authMiddleware->requireRole(['admin']);
+            $authMiddleware->requireRole(['admin', 'diretoria']);
             $unidadeController->store();
         },
         '/unidades/{id}/update' => function (int $id) use ($authMiddleware, $unidadeController) {
             $authMiddleware->handle();
-            $authMiddleware->requireRole(['admin']);
+            $authMiddleware->requireRole(['admin', 'diretoria']);
             $unidadeController->update($id);
         },
         '/unidades/{id}/delete' => function (int $id) use ($authMiddleware, $unidadeController) {
             $authMiddleware->handle();
-            $authMiddleware->requireRole(['admin']);
+            $authMiddleware->requireRole(['admin', 'diretoria']);
             $unidadeController->delete($id);
         },
     ],

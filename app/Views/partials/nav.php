@@ -28,7 +28,7 @@ $baseUrl = $config['app_url'] ?? '';
                 <li class="nav-item">
                     <a class="nav-link" href="/reports"><i class="bi bi-graph-up"></i> Relatórios</a>
                 </li>
-                <?php if ($currentUser && in_array($currentUser['role'], ['admin'], true)): ?>
+                <?php if ($currentUser && in_array($currentUser['role'], ['admin', 'diretoria'], true)): ?>
                 <li class="nav-item">
                     <a class="nav-link" href="/categories"><i class="bi bi-tags"></i> Categorias</a>
                 </li>
@@ -46,7 +46,7 @@ $baseUrl = $config['app_url'] ?? '';
             <ul class="navbar-nav">
                 <?php if ($currentUser): ?>
                 <li class="nav-item">
-                    <span class="nav-link"><?= e($currentUser['name']) ?> (<?= e($currentUser['role']) ?>)</span>
+                    <span class="nav-link"><?= e($currentUser['name']) ?> (<?= e(roleLabel($currentUser['role'] ?? '')) ?>)</span>
                 </li>
                 <li class="nav-item">
                     <form method="post" action="/logout" class="d-inline">

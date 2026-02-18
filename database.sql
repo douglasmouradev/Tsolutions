@@ -1,16 +1,20 @@
--- Sistema CRM Chamados - Schema + Seed
--- MySQL 8.0+, utf8mb4
+-- T Solutions - Sistema CRM Chamados
+-- Schema completo unificado - MySQL 8.0+, utf8mb4
+-- Execute: mysql -u root -p < database.sql
+--
+-- ATENÇÃO: Este script recria o banco do zero. Todos os dados serão apagados.
 
-CREATE DATABASE IF NOT EXISTS crm_chamados CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+DROP DATABASE IF EXISTS crm_chamados;
+CREATE DATABASE crm_chamados CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE crm_chamados;
 
--- Tabela de usuários
+-- ========== USUÁRIOS ==========
 CREATE TABLE users (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(120) NOT NULL,
     email VARCHAR(190) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
-    role ENUM('admin','agent','requester') NOT NULL DEFAULT 'requester',
+    role ENUM('admin','agent','requester','diretoria','externo','suporte') NOT NULL DEFAULT 'requester',
     is_active TINYINT(1) NOT NULL DEFAULT 1,
     must_change_password TINYINT(1) NOT NULL DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -19,13 +23,13 @@ CREATE TABLE users (
     INDEX idx_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Tabela de categorias
+-- ========== CATEGORIAS ==========
 CREATE TABLE categories (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Tabela de chamados
+-- ========== CHAMADOS (TICKETS) ==========
 CREATE TABLE tickets (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(200) NOT NULL,
@@ -37,6 +41,7 @@ CREATE TABLE tickets (
     status ENUM('aberto','em_andamento','fechado','cancelado') NOT NULL DEFAULT 'aberto',
     due_at DATETIME NULL,
     closed_at DATETIME NULL,
+    -- Planilha Cliente/Contrato
     cliente_raiz VARCHAR(120) NULL,
     cliente VARCHAR(120) NULL,
     sigla_unidade_loja_ag VARCHAR(100) NULL,
@@ -47,10 +52,12 @@ CREATE TABLE tickets (
     reversa VARCHAR(80) NULL,
     codigo_postagem VARCHAR(80) NULL,
     data_postagem DATE NULL,
+    -- Planilha Equipamento
     equipamento VARCHAR(120) NULL,
     n_serie VARCHAR(80) NULL,
     patrimonio VARCHAR(80) NULL,
     hostname VARCHAR(120) NULL,
+    -- Planilha Solicitante
     usuario_contato VARCHAR(120) NULL,
     telefone_usuario VARCHAR(50) NULL,
     email_usuario VARCHAR(190) NULL,
@@ -59,6 +66,7 @@ CREATE TABLE tickets (
     moebius VARCHAR(80) NULL,
     n_cl VARCHAR(80) NULL,
     n_tarefa_remessa VARCHAR(80) NULL,
+    -- Endereço
     endereco VARCHAR(255) NULL,
     bairro VARCHAR(100) NULL,
     cidade VARCHAR(100) NULL,
@@ -67,9 +75,18 @@ CREATE TABLE tickets (
     data_vencimento_ch DATE NULL,
     data_disponibilidade DATE NULL,
     hora_disponibilidade TIME NULL,
+    -- Operação
     operacao VARCHAR(80) NULL,
     intercorrencias TEXT NULL,
     observacao_tecnico TEXT NULL,
+    -- Técnico/Atendimento
+    nome_tecnico VARCHAR(120) NULL,
+    cpf_tecnico VARCHAR(20) NULL,
+    rg_tecnico VARCHAR(20) NULL,
+    data_atendimento DATE NULL,
+    hora_atendimento TIME NULL,
+    valor_tecnico DECIMAL(10,2) NULL,
+    modalidade_tecnico VARCHAR(20) NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (requester_id) REFERENCES users(id) ON DELETE RESTRICT,
@@ -84,7 +101,7 @@ CREATE TABLE tickets (
     FULLTEXT idx_fulltext (title, description)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Histórico de mudanças de status
+-- ========== HISTÓRICO DE STATUS ==========
 CREATE TABLE ticket_status_history (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     ticket_id BIGINT UNSIGNED NOT NULL,
@@ -98,7 +115,7 @@ CREATE TABLE ticket_status_history (
     INDEX idx_ticket_id (ticket_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Comentários
+-- ========== COMENTÁRIOS ==========
 CREATE TABLE ticket_comments (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     ticket_id BIGINT UNSIGNED NOT NULL,
@@ -110,7 +127,7 @@ CREATE TABLE ticket_comments (
     INDEX idx_ticket_id (ticket_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Anexos
+-- ========== ANEXOS ==========
 CREATE TABLE attachments (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     ticket_id BIGINT UNSIGNED NOT NULL,
@@ -125,7 +142,7 @@ CREATE TABLE attachments (
     INDEX idx_ticket_id (ticket_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Rate limit para login
+-- ========== RATE LIMIT LOGIN ==========
 CREATE TABLE auth_rate_limit (
     key_hash VARCHAR(64) PRIMARY KEY,
     attempts INT UNSIGNED NOT NULL DEFAULT 0,
@@ -133,7 +150,7 @@ CREATE TABLE auth_rate_limit (
     INDEX idx_first_attempt (first_attempt)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Tokens para redefinição de senha
+-- ========== REDEFINIÇÃO DE SENHA ==========
 CREATE TABLE password_reset_tokens (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT UNSIGNED NOT NULL,
@@ -143,6 +160,83 @@ CREATE TABLE password_reset_tokens (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     INDEX idx_token (token),
     INDEX idx_expires (expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ========== TÉCNICOS ==========
+CREATE TABLE tecnicos (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(120) NOT NULL,
+    naturalidade VARCHAR(100) NULL,
+    email VARCHAR(190) NULL,
+    rg VARCHAR(30) NULL,
+    cpf VARCHAR(20) NULL,
+    data_nascimento DATE NULL,
+    genero VARCHAR(20) NULL,
+    nome_mae VARCHAR(120) NULL,
+    nome_pai VARCHAR(120) NULL,
+    cep VARCHAR(20) NULL,
+    endereco VARCHAR(255) NULL,
+    numero VARCHAR(20) NULL,
+    bairro VARCHAR(100) NULL,
+    cidade VARCHAR(100) NULL,
+    estado VARCHAR(5) NULL,
+    pais VARCHAR(50) NULL,
+    celular_1 VARCHAR(30) NULL,
+    celular_2 VARCHAR(30) NULL,
+    whats VARCHAR(30) NULL,
+    telefone_fixo VARCHAR(30) NULL,
+    telefone VARCHAR(50) NULL,
+    referencia_bancaria VARCHAR(255) NULL,
+    chave_pix VARCHAR(100) NULL,
+    banco VARCHAR(100) NULL,
+    cod_banco VARCHAR(10) NULL,
+    agencia VARCHAR(20) NULL,
+    conta VARCHAR(30) NULL,
+    tipo_conta VARCHAR(30) NULL,
+    operacao VARCHAR(20) NULL,
+    favorecido VARCHAR(120) NULL,
+    razao_social VARCHAR(150) NULL,
+    nome_fantasia VARCHAR(150) NULL,
+    cnpj VARCHAR(20) NULL,
+    inscricao_estadual VARCHAR(30) NULL,
+    inscricao_municipal VARCHAR(30) NULL,
+    empresa_cep VARCHAR(20) NULL,
+    empresa_endereco VARCHAR(255) NULL,
+    empresa_numero VARCHAR(20) NULL,
+    empresa_bairro VARCHAR(100) NULL,
+    empresa_cidade VARCHAR(100) NULL,
+    empresa_estado VARCHAR(5) NULL,
+    empresa_pais VARCHAR(50) NULL,
+    empresa_referencia_bancaria VARCHAR(255) NULL,
+    empresa_chave_pix VARCHAR(100) NULL,
+    empresa_banco VARCHAR(100) NULL,
+    empresa_cod_banco VARCHAR(10) NULL,
+    empresa_agencia VARCHAR(20) NULL,
+    empresa_conta VARCHAR(30) NULL,
+    empresa_tipo_conta VARCHAR(30) NULL,
+    empresa_operacao VARCHAR(20) NULL,
+    empresa_favorecido VARCHAR(120) NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_name (name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ========== UNIDADES ==========
+CREATE TABLE unidades (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(120) NOT NULL,
+    sigla VARCHAR(20) NULL,
+    endereco VARCHAR(255) NULL,
+    bairro VARCHAR(100) NULL,
+    cidade VARCHAR(120) NULL,
+    uf VARCHAR(5) NULL,
+    cep VARCHAR(20) NULL,
+    centro_de_lucro VARCHAR(120) NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_name (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ========== SEED ==========

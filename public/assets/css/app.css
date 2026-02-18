@@ -1,27 +1,29 @@
 /* T Solutions - Estilos */
 body {
-    padding-top: 4rem;
+    padding-top: 0;
     background-color: #fff;
 }
 
 body.page-login {
-    background-color: #0a0e14;
-    background-image: url('/assets/fundo-tech.png');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
+    padding-top: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 50%, #dbeafe 100%);
 }
 
-body.page-login::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.25);
-    pointer-events: none;
-    z-index: -1;
+body.page-login .login-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+body.page-login .card {
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.12);
+    background: #fff;
 }
 
 .navbar {
@@ -64,10 +66,6 @@ body {
     background: #fff;
 }
 
-body.page-login .card {
-    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-    background: rgba(255, 255, 255, 0.97);
-}
 
 .table th {
     font-weight: 600;

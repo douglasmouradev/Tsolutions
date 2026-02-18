@@ -3,7 +3,7 @@ $pageTitle = 'Login';
 $bodyClass = 'page-login';
 require __DIR__ . '/../partials/head.php';
 ?>
-<div class="container min-vh-100 d-flex align-items-center justify-content-center">
+<div class="login-wrapper">
     <div class="card shadow-sm" style="max-width: 400px; width: 100%;">
         <div class="card-body p-4">
             <div class="text-center mb-4">

@@ -28,7 +28,7 @@ class User extends BaseModel
 
     public function findAllAgents(): array
     {
-        $stmt = $this->pdo->query("SELECT * FROM users WHERE role IN ('admin','agent') AND is_active = 1 ORDER BY name");
+        $stmt = $this->pdo->query("SELECT * FROM users WHERE role IN ('admin','agent','suporte','diretoria') AND is_active = 1 ORDER BY name");
         return $stmt->fetchAll();
     }
 
@@ -46,7 +46,7 @@ class User extends BaseModel
 
     public function findAllRequesters(): array
     {
-        $stmt = $this->pdo->query("SELECT * FROM users WHERE role = 'requester' AND is_active = 1 ORDER BY name");
+        $stmt = $this->pdo->query("SELECT * FROM users WHERE role IN ('requester','externo') AND is_active = 1 ORDER BY name");
         return $stmt->fetchAll();
     }
 

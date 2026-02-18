@@ -115,7 +115,7 @@ class NotificationService
     /** @return string[] Emails de admins e agentes que recebem notificações */
     private function getNotificationRecipients(): array
     {
-        $users = $this->userModel->findByRoles(['admin', 'agent']);
+        $users = $this->userModel->findByRoles(['admin', 'agent', 'diretoria', 'suporte']);
         $emails = [];
         foreach ($users as $u) {
             if (!empty($u['email']) && ($u['is_active'] ?? true)) {

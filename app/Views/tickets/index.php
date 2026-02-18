@@ -125,7 +125,15 @@ require __DIR__ . '/../partials/nav.php';
                             <td><?= formatDate($t['created_at']) ?></td>
                             <td><?= $t['due_at'] ? formatDate($t['due_at']) : '-' ?></td>
                             <td><?php if ($sla === 'vencido'): ?><span class="badge bg-danger">Vencido</span><?php elseif ($sla === 'proximo'): ?><span class="badge bg-warning">Próximo</span><?php elseif ($sla === 'ok'): ?><span class="badge bg-success">OK</span><?php else: ?>-<?php endif; ?></td>
-                            <td><a href="/tickets/<?= $t['id'] ?>" class="btn btn-sm btn-outline-secondary">Ver</a></td>
+                            <td>
+                                <a href="/tickets/<?= $t['id'] ?>" class="btn btn-sm btn-outline-secondary">Ver</a>
+                                <?php if ($currentUser && $authService->canManageTicket($t)): ?>
+                                <form method="post" action="/tickets/<?= $t['id'] ?>/delete" class="d-inline" onsubmit="return confirm('Excluir este chamado?');">
+                                    <?= csrf_field() ?>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
+                                </form>
+                                <?php endif; ?>
+                            </td>
                         </tr>
                         <?php endforeach; ?>
                         <?php if (empty($result['items'])): ?>

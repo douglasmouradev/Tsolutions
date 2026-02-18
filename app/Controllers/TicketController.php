@@ -49,18 +49,14 @@ class TicketController
             'q' => $_GET['q'] ?? '',
         ];
 
-        $user = $this->authService->currentUser();
-        if ($user['role'] === 'requester') {
-            $filters['requester_id'] = (string) $user['id'];
-        }
-
         $page = max(1, (int) ($_GET['page'] ?? 1));
         $result = $this->ticketModel->search($filters, $page, self::PER_PAGE);
 
         $categories = $this->categoryModel->all();
         $agents = $this->userModel->findAllAgents();
-        $requesters = $this->authService->hasRole(['admin', 'agent']) ? $this->userModel->findAllRequesters() : [];
+        $requesters = $this->authService->hasRole(['admin', 'agent', 'diretoria', 'suporte']) ? $this->userModel->findAllRequesters() : [];
         $currentUser = $this->authService->currentUser();
+        $authService = $this->authService;
 
         require __DIR__ . '/../Views/tickets/index.php';
     }
@@ -126,6 +122,8 @@ class TicketController
         $horaDisp = !empty($_POST['hora_disponibilidade']) ? $_POST['hora_disponibilidade'] : null;
         $dataAtendimento = !empty($_POST['data_atendimento']) ? $_POST['data_atendimento'] : null;
         $horaAtendimento = !empty($_POST['hora_atendimento']) ? $_POST['hora_atendimento'] : null;
+        $valorTecnico = isset($_POST['valor_tecnico']) && $_POST['valor_tecnico'] !== '' ? (float) str_replace(',', '.', $_POST['valor_tecnico']) : null;
+        $modalidadeTecnico = !empty($_POST['modalidade_tecnico']) ? trim($_POST['modalidade_tecnico']) : null;
 
         $id = $this->ticketModel->create(array_merge([
             'title' => $title,
@@ -141,6 +139,8 @@ class TicketController
             'hora_disponibilidade' => $horaDisp,
             'data_atendimento' => $dataAtendimento,
             'hora_atendimento' => $horaAtendimento,
+            'valor_tecnico' => $valorTecnico,
+            'modalidade_tecnico' => $modalidadeTecnico,
         ]));
 
         if (!empty($_FILES['attachments']['name'])) {
@@ -181,7 +181,7 @@ class TicketController
             exit;
         }
 
-        if (!$this->authService->canManageTicket($ticket)) {
+        if (!$this->authService->canViewTicket($ticket)) {
             $_SESSION['flash_error'] = 'Acesso negado a este chamado.';
             header('Location: /tickets');
             exit;
@@ -250,6 +250,9 @@ class TicketController
         } elseif (is_numeric($slaPrazo) && (int) $slaPrazo > 0) {
             $hours = (int) $slaPrazo;
             $dueAt = date('Y-m-d H:i:s', time() + $hours * 3600);
+        } elseif ($slaPrazo === 'prioridade' && !empty($this->config['sla_hours'][$priority] ?? null)) {
+            $hours = (int) $this->config['sla_hours'][$priority];
+            $dueAt = date('Y-m-d H:i:s', time() + $hours * 3600);
         } elseif (!empty($_POST['due_at'])) {
             $dueAt = date('Y-m-d H:i:s', strtotime($_POST['due_at']));
         }
@@ -276,6 +279,13 @@ class TicketController
         $planilha['hora_disponibilidade'] = !empty($_POST['hora_disponibilidade']) ? $_POST['hora_disponibilidade'] : null;
         $planilha['data_atendimento'] = !empty($_POST['data_atendimento']) ? $_POST['data_atendimento'] : null;
         $planilha['hora_atendimento'] = !empty($_POST['hora_atendimento']) ? $_POST['hora_atendimento'] : null;
+        $user = $this->authService->currentUser();
+        if (in_array($user['role'] ?? '', ['admin', 'agent', 'diretoria', 'suporte'], true)) {
+            $planilha['valor_tecnico'] = isset($_POST['valor_tecnico']) && $_POST['valor_tecnico'] !== '' ? (float) str_replace(',', '.', $_POST['valor_tecnico']) : null;
+            $planilha['modalidade_tecnico'] = !empty($_POST['modalidade_tecnico']) ? trim($_POST['modalidade_tecnico']) : null;
+        } else {
+            unset($planilha['valor_tecnico'], $planilha['modalidade_tecnico']);
+        }
 
         $this->ticketModel->update($id, array_merge([
             'title' => $title,
@@ -286,7 +296,6 @@ class TicketController
             'due_at' => $dueAt,
         ], $planilha));
 
-        $user = $this->authService->currentUser();
         $this->log('ticket_edit', ['ticket_id' => $id, 'user_id' => $user['id']]);
         $_SESSION['flash_success'] = 'Chamado atualizado.';
         header('Location: /tickets/' . $id);
@@ -323,7 +332,7 @@ class TicketController
             'usuario_contato', 'telefone_usuario', 'email_usuario', 'nome_solicitante_ch', 'numero_ch', 'moebius',
             'n_cl', 'n_tarefa_remessa', 'endereco', 'bairro', 'cidade', 'uf', 'cep',
             'operacao', 'intercorrencias', 'observacao_tecnico',
-            'nome_tecnico', 'cpf_tecnico', 'rg_tecnico',
+            'nome_tecnico', 'cpf_tecnico', 'rg_tecnico', 'valor_tecnico', 'modalidade_tecnico',
         ];
         $out = [];
         foreach ($keys as $k) {
@@ -381,6 +390,34 @@ class TicketController
         exit;
     }
 
+    public function delete(int $id): void
+    {
+        if (!Csrf::validate()) {
+            $_SESSION['flash_error'] = 'Token inválido.';
+            header('Location: /tickets');
+            exit;
+        }
+
+        $ticket = $this->ticketModel->find($id);
+        if (!$ticket) {
+            $_SESSION['flash_error'] = 'Chamado não encontrado.';
+            header('Location: /tickets');
+            exit;
+        }
+
+        if (!$this->authService->canManageTicket($ticket)) {
+            $_SESSION['flash_error'] = 'Sem permissão para excluir este chamado.';
+            header('Location: /tickets');
+            exit;
+        }
+
+        $this->ticketModel->delete($id);
+        $this->log('ticket_delete', ['ticket_id' => $id]);
+        $_SESSION['flash_success'] = 'Chamado excluído.';
+        header('Location: /tickets');
+        exit;
+    }
+
     public function assign(int $id): void
     {
         if (!Csrf::validate()) {
@@ -396,7 +433,7 @@ class TicketController
             exit;
         }
 
-        if (!$this->authService->hasRole(['admin', 'agent'])) {
+        if (!$this->authService->hasRole(['admin', 'agent', 'diretoria', 'suporte'])) {
             $_SESSION['flash_error'] = 'Apenas agentes podem atribuir chamados.';
             header('Location: /tickets/' . $id);
             exit;
@@ -499,7 +536,7 @@ class TicketController
     public function downloadAttachment(int $ticketId, int $attachmentId): void
     {
         $ticket = $this->ticketModel->find($ticketId);
-        if (!$ticket || !$this->authService->canManageTicket($ticket)) {
+        if (!$ticket || !$this->authService->canViewTicket($ticket)) {
             http_response_code(403);
             echo 'Acesso negado.';
             exit;

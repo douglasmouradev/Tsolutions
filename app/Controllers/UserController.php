@@ -46,7 +46,7 @@ class UserController
         if (strlen($password) < 6) {
             $errors[] = 'Senha deve ter pelo menos 6 caracteres.';
         }
-        if (!in_array($role, ['admin', 'agent', 'requester'], true)) {
+        if (!in_array($role, ['admin', 'agent', 'requester', 'diretoria', 'externo', 'suporte'], true)) {
             $errors[] = 'Papel inválido.';
         }
 

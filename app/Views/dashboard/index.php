@@ -71,7 +71,15 @@ require __DIR__ . '/../partials/nav.php';
                             <td><?= e($t['requester_name'] ?? '-') ?></td>
                             <td><?= e($t['agent_name'] ?? '-') ?></td>
                             <td><?= formatDate($t['updated_at'] ?? $t['created_at']) ?></td>
-                            <td><a href="/tickets/<?= $t['id'] ?>" class="btn btn-sm btn-outline-secondary">Ver</a></td>
+                            <td>
+                                <a href="/tickets/<?= $t['id'] ?>" class="btn btn-sm btn-outline-secondary">Ver</a>
+                                <?php if ($currentUser && ($authService ?? null) && $authService->canManageTicket($t)): ?>
+                                <form method="post" action="/tickets/<?= $t['id'] ?>/delete" class="d-inline" onsubmit="return confirm('Excluir este chamado?');">
+                                    <?= csrf_field() ?>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
+                                </form>
+                                <?php endif; ?>
+                            </td>
                         </tr>
                         <?php endforeach; ?>
                         <?php if (empty($lastTickets)): ?>

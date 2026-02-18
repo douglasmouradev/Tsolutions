@@ -80,19 +80,34 @@ class AuthService
         return $userRole === $roles;
     }
 
+    /** Permite visualizar chamado (página de detalhes). Todos os usuários autenticados podem ver todos os chamados. */
+    public function canViewTicket(array $ticket): bool
+    {
+        return $this->currentUser() !== null;
+    }
+
     public function canManageTicket(array $ticket): bool
     {
         $user = $this->currentUser();
         if (!$user) {
             return false;
         }
-        if ($user['role'] === 'admin') {
+        if (in_array($user['role'], ['admin', 'diretoria'], true)) {
             return true;
         }
-        if ($user['role'] === 'agent') {
+        if (in_array($user['role'], ['agent', 'suporte'], true)) {
             return (int) $ticket['agent_id'] === (int) $user['id'] || $ticket['agent_id'] === null;
         }
-        return (int) $ticket['requester_id'] === (int) $user['id'];
+        if (in_array($user['role'], ['requester', 'externo'], true)) {
+            if ((int) $ticket['requester_id'] === (int) $user['id']) {
+                return true;
+            }
+            $status = $ticket['status'] ?? '';
+            if (in_array($status, ['aberto', 'em_andamento'], true)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function canCloseTicket(array $ticket): bool
@@ -104,10 +119,10 @@ class AuthService
         $config = require dirname(__DIR__, 2) . '/config/config.php';
         $allowRequesterClose = $config['allow_requester_close'] ?? false;
 
-        if ($user['role'] === 'admin' || $user['role'] === 'agent') {
+        if (in_array($user['role'], ['admin', 'diretoria', 'agent', 'suporte'], true)) {
             return $this->canManageTicket($ticket);
         }
-        if ($user['role'] === 'requester') {
+        if (in_array($user['role'], ['requester', 'externo'], true)) {
             return $allowRequesterClose && (int) $ticket['requester_id'] === (int) $user['id'];
         }
         return false;
