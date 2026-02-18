@@ -128,9 +128,9 @@ require __DIR__ . '/../partials/nav.php';
             <div class="card-header collapsed" data-bs-toggle="collapse" data-bs-target="#sec-tecnico" style="cursor:pointer"><strong>Dados do técnico / Atendimento</strong></div>
             <div id="sec-tecnico" class="card-body collapse">
                 <div class="row">
-                    <div class="col-md-4 mb-2"><label class="form-label">Nome do técnico</label><input type="text" name="nome_tecnico" class="form-control form-control-sm" value="<?= $val('nome_tecnico') ?>"></div>
-                    <div class="col-md-4 mb-2"><label class="form-label">CPF</label><input type="text" name="cpf_tecnico" class="form-control form-control-sm" placeholder="000.000.000-00" value="<?= $val('cpf_tecnico') ?>"></div>
-                    <div class="col-md-4 mb-2"><label class="form-label">RG</label><input type="text" name="rg_tecnico" class="form-control form-control-sm" value="<?= $val('rg_tecnico') ?>"></div>
+                    <div class="col-md-4 mb-2"><label class="form-label">Nome do técnico</label><input type="text" name="nome_tecnico" id="nome_tecnico" class="form-control form-control-sm" value="<?= $val('nome_tecnico') ?>"></div>
+                    <div class="col-md-4 mb-2"><label class="form-label">CPF</label><input type="text" name="cpf_tecnico" id="cpf_tecnico" class="form-control form-control-sm" placeholder="000.000.000-00" value="<?= $val('cpf_tecnico') ?>"></div>
+                    <div class="col-md-4 mb-2"><label class="form-label">RG</label><input type="text" name="rg_tecnico" id="rg_tecnico" class="form-control form-control-sm" value="<?= $val('rg_tecnico') ?>"></div>
                     <div class="col-md-4 mb-2"><label class="form-label">Data do atendimento</label><input type="date" name="data_atendimento" class="form-control form-control-sm" value="<?= $val('data_atendimento') ?>"></div>
                     <div class="col-md-4 mb-2"><label class="form-label">Hora do atendimento</label><input type="time" name="hora_atendimento" class="form-control form-control-sm" value="<?= $val('hora_atendimento') ?>"></div>
                     <?php if ($currentUser && in_array($currentUser['role'] ?? '', ['admin', 'agent', 'diretoria', 'suporte'], true)): ?>
@@ -196,6 +196,25 @@ require __DIR__ . '/../partials/nav.php';
     function toggle(){wr.style.display=sel.value==='personalizado'?'block':'none';}
     sel.addEventListener('change',toggle);
     toggle();
+})();
+(function(){
+    var cpfTecnico=document.getElementById('cpf_tecnico');
+    if(cpfTecnico){
+        function apenasNumeros(s){return (s||'').replace(/\D/g,'');}
+        function buscarTecnicoPorCpf(){
+            var cpf=apenasNumeros(cpfTecnico.value);
+            if(cpf.length!==11)return;
+            fetch('/tecnicos/por-cpf?cpf='+encodeURIComponent(cpfTecnico.value)).then(function(r){return r.json();}).then(function(d){
+                if(d.found){
+                    var nome=document.getElementById('nome_tecnico'),rg=document.getElementById('rg_tecnico');
+                    if(nome)nome.value=d.name||'';
+                    if(rg)rg.value=d.rg||'';
+                }
+            });
+        }
+        cpfTecnico.addEventListener('blur',buscarTecnicoPorCpf);
+        cpfTecnico.addEventListener('input',function(){if(apenasNumeros(this.value).length===11)buscarTecnicoPorCpf();});
+    }
 })();
 (function(){
     var unidadeSelect=document.getElementById('unidade_select');

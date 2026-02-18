@@ -12,11 +12,11 @@ class TecnicoController
 {
     private const FIELDS = [
         'name', 'naturalidade', 'email', 'rg', 'cpf', 'data_nascimento', 'genero',
-        'nome_mae', 'nome_pai', 'cep', 'endereco', 'numero', 'bairro', 'cidade', 'estado', 'pais',
+        'nome_mae', 'nome_pai', 'cep', 'endereco', 'numero', 'bairro', 'cidade', 'estado',
         'celular_1', 'celular_2', 'whats', 'telefone_fixo', 'telefone',
         'referencia_bancaria', 'chave_pix', 'banco', 'cod_banco', 'agencia', 'conta', 'tipo_conta', 'operacao', 'favorecido',
         'razao_social', 'nome_fantasia', 'cnpj', 'inscricao_estadual', 'inscricao_municipal',
-        'empresa_cep', 'empresa_endereco', 'empresa_numero', 'empresa_bairro', 'empresa_cidade', 'empresa_estado', 'empresa_pais',
+        'empresa_cep', 'empresa_endereco', 'empresa_numero', 'empresa_bairro', 'empresa_cidade', 'empresa_estado',
         'empresa_referencia_bancaria', 'empresa_chave_pix', 'empresa_banco', 'empresa_cod_banco', 'empresa_agencia', 'empresa_conta', 'empresa_tipo_conta', 'empresa_operacao', 'empresa_favorecido',
     ];
 
@@ -86,6 +86,27 @@ class TecnicoController
         $this->tecnicoModel->update($id, $data);
         $_SESSION['flash_success'] = 'Técnico atualizado.';
         header('Location: /tecnicos');
+        exit;
+    }
+
+    public function getByCpf(): void
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $cpf = trim($_GET['cpf'] ?? '');
+        if ($cpf === '') {
+            echo json_encode(['found' => false]);
+            exit;
+        }
+        $tecnico = $this->tecnicoModel->findByCpf($cpf);
+        if (!$tecnico) {
+            echo json_encode(['found' => false]);
+            exit;
+        }
+        echo json_encode([
+            'found' => true,
+            'name' => $tecnico['name'] ?? '',
+            'rg' => $tecnico['rg'] ?? '',
+        ]);
         exit;
     }
 

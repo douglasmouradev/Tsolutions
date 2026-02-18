@@ -139,6 +139,10 @@ $routes = [
             $authMiddleware->requireRole(['admin', 'diretoria']);
             $tecnicoController->edit($id);
         },
+        '/tecnicos/por-cpf' => function () use ($authMiddleware, $tecnicoController) {
+            $authMiddleware->handle();
+            $tecnicoController->getByCpf();
+        },
         '/unidades' => function () use ($authMiddleware, $unidadeController) {
             $authMiddleware->handle();
             $authMiddleware->requireRole(['admin', 'diretoria']);

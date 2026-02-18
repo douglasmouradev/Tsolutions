@@ -8,11 +8,11 @@ class Tecnico extends BaseModel
 {
     private const FIELDS = [
         'name', 'naturalidade', 'email', 'rg', 'cpf', 'data_nascimento', 'genero',
-        'nome_mae', 'nome_pai', 'cep', 'endereco', 'numero', 'bairro', 'cidade', 'estado', 'pais',
+        'nome_mae', 'nome_pai', 'cep', 'endereco', 'numero', 'bairro', 'cidade', 'estado',
         'celular_1', 'celular_2', 'whats', 'telefone_fixo', 'telefone',
         'referencia_bancaria', 'chave_pix', 'banco', 'cod_banco', 'agencia', 'conta', 'tipo_conta', 'operacao', 'favorecido',
         'razao_social', 'nome_fantasia', 'cnpj', 'inscricao_estadual', 'inscricao_municipal',
-        'empresa_cep', 'empresa_endereco', 'empresa_numero', 'empresa_bairro', 'empresa_cidade', 'empresa_estado', 'empresa_pais',
+        'empresa_cep', 'empresa_endereco', 'empresa_numero', 'empresa_bairro', 'empresa_cidade', 'empresa_estado',
         'empresa_referencia_bancaria', 'empresa_chave_pix', 'empresa_banco', 'empresa_cod_banco', 'empresa_agencia', 'empresa_conta', 'empresa_tipo_conta', 'empresa_operacao', 'empresa_favorecido',
     ];
 
@@ -68,6 +68,18 @@ class Tecnico extends BaseModel
     {
         $stmt = $this->pdo->prepare('DELETE FROM tecnicos WHERE id = ?');
         return $stmt->execute([$id]);
+    }
+
+    public function findByCpf(string $cpf): ?array
+    {
+        $cpfNorm = preg_replace('/\D/', '', $cpf);
+        if (strlen($cpfNorm) !== 11) {
+            return null;
+        }
+        $stmt = $this->pdo->prepare('SELECT * FROM tecnicos WHERE REPLACE(REPLACE(REPLACE(cpf, ".", ""), "-", ""), " ", "") = ? LIMIT 1');
+        $stmt->execute([$cpfNorm]);
+        $row = $stmt->fetch();
+        return $row ?: null;
     }
 
     public function search(string $q): array

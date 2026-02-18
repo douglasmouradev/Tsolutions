@@ -49,11 +49,11 @@ class ReportController
             'ID', 'Título', 'Status', 'Prioridade', 'Categoria', 'Solicitante', 'Agente',
             'Cliente', 'Cliente raiz', 'Equipamento', 'Nº Série', 'Endereço', 'Cidade', 'UF',
             'N° CH', 'Criado em', 'Atualizado em', 'Vencimento',
+            'Nome do técnico', 'Valor do técnico', 'Modalidade',
         ];
-        $col = 'A';
-        foreach ($headers as $h) {
-            $sheet->setCellValue($col . '1', $h);
-            $col++;
+        $columns = range('A', 'U');
+        foreach ($headers as $i => $h) {
+            $sheet->setCellValue($columns[$i] . '1', $h);
         }
 
         $headerStyle = [
@@ -61,7 +61,7 @@ class ReportController
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '4472C4']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ];
-        $sheet->getStyle('A1:R1')->applyFromArray($headerStyle);
+        $sheet->getStyle('A1:U1')->applyFromArray($headerStyle);
 
         $row = 2;
         foreach ($result['items'] as $t) {
@@ -83,20 +83,32 @@ class ReportController
             $sheet->setCellValue('P' . $row, $this->fmtDate($t['created_at'] ?? null));
             $sheet->setCellValue('Q' . $row, $this->fmtDate($t['updated_at'] ?? $t['created_at'] ?? null));
             $sheet->setCellValue('R' . $row, $this->fmtDate($t['due_at'] ?? null));
+            $sheet->setCellValue('S' . $row, $t['nome_tecnico'] ?? '');
+            $sheet->setCellValue('T' . $row, isset($t['valor_tecnico']) && $t['valor_tecnico'] !== '' && $t['valor_tecnico'] !== null ? 'R$ ' . number_format((float) $t['valor_tecnico'], 2, ',', '.') : '');
+            $sheet->setCellValue('U' . $row, $t['modalidade_tecnico'] ?? '');
             $row++;
         }
 
-        foreach (range('A', 'R') as $c) {
+        foreach (range('A', 'U') as $c) {
             $sheet->getColumnDimension($c)->setAutoSize(true);
         }
 
         $filename = 'relatorio_chamados_' . date('Y-m-d_H-i') . '.xlsx';
+
+        $tempFile = tempnam(sys_get_temp_dir(), 'xlsx_');
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($tempFile);
+
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
+        header('Content-Length: ' . filesize($tempFile));
 
-        $writer = new Xlsx($spreadsheet);
-        $writer->save('php://output');
+        readfile($tempFile);
+        @unlink($tempFile);
         exit;
     }
 

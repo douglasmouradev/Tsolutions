@@ -18,13 +18,12 @@ $v = fn($k) => e($t[$k] ?? '');
 
 <div class="row mb-3">
     <div class="col-12"><h6 class="border-bottom pb-1">Endereço</h6></div>
-    <div class="col-md-2 mb-2"><label class="form-label">CEP</label><input type="text" name="cep" class="form-control" value="<?= $v('cep') ?>"></div>
+    <div class="col-md-2 mb-2"><label class="form-label">CEP</label><input type="text" name="cep" class="form-control" placeholder="00000-000" maxlength="9" value="<?= $v('cep') ?>" title="Digite o CEP para buscar o endereço automaticamente"></div>
     <div class="col-md-4 mb-2"><label class="form-label">ENDERECO</label><input type="text" name="endereco" class="form-control" value="<?= $v('endereco') ?>"></div>
     <div class="col-md-1 mb-2"><label class="form-label">Nº</label><input type="text" name="numero" class="form-control" value="<?= $v('numero') ?>"></div>
     <div class="col-md-2 mb-2"><label class="form-label">BAIRRO</label><input type="text" name="bairro" class="form-control" value="<?= $v('bairro') ?>"></div>
     <div class="col-md-2 mb-2"><label class="form-label">CIDADE</label><input type="text" name="cidade" class="form-control" value="<?= $v('cidade') ?>"></div>
     <div class="col-md-1 mb-2"><label class="form-label">ESTADO</label><input type="text" name="estado" class="form-control" maxlength="2" value="<?= $v('estado') ?>"></div>
-    <div class="col-md-2 mb-2"><label class="form-label">PAIS</label><input type="text" name="pais" class="form-control" value="<?= $v('pais') ?>"></div>
 </div>
 
 <div class="row mb-3">
@@ -56,13 +55,12 @@ $v = fn($k) => e($t[$k] ?? '');
     <div class="col-md-4 mb-2"><label class="form-label">CNPJ</label><input type="text" name="cnpj" class="form-control" value="<?= $v('cnpj') ?>"></div>
     <div class="col-md-4 mb-2"><label class="form-label">INSCRICAO ESTADUAL</label><input type="text" name="inscricao_estadual" class="form-control" value="<?= $v('inscricao_estadual') ?>"></div>
     <div class="col-md-4 mb-2"><label class="form-label">INSCRICAO MUNICIPAL</label><input type="text" name="inscricao_municipal" class="form-control" value="<?= $v('inscricao_municipal') ?>"></div>
-    <div class="col-md-2 mb-2"><label class="form-label">CEP</label><input type="text" name="empresa_cep" class="form-control" value="<?= $v('empresa_cep') ?>"></div>
+    <div class="col-md-2 mb-2"><label class="form-label">CEP</label><input type="text" name="empresa_cep" class="form-control" placeholder="00000-000" maxlength="9" value="<?= $v('empresa_cep') ?>" title="Digite o CEP para buscar o endereço automaticamente"></div>
     <div class="col-md-4 mb-2"><label class="form-label">ENDERECO</label><input type="text" name="empresa_endereco" class="form-control" value="<?= $v('empresa_endereco') ?>"></div>
     <div class="col-md-1 mb-2"><label class="form-label">Nº</label><input type="text" name="empresa_numero" class="form-control" value="<?= $v('empresa_numero') ?>"></div>
     <div class="col-md-2 mb-2"><label class="form-label">BAIRRO</label><input type="text" name="empresa_bairro" class="form-control" value="<?= $v('empresa_bairro') ?>"></div>
     <div class="col-md-2 mb-2"><label class="form-label">CIDADE</label><input type="text" name="empresa_cidade" class="form-control" value="<?= $v('empresa_cidade') ?>"></div>
     <div class="col-md-1 mb-2"><label class="form-label">ESTADO</label><input type="text" name="empresa_estado" class="form-control" maxlength="2" value="<?= $v('empresa_estado') ?>"></div>
-    <div class="col-md-2 mb-2"><label class="form-label">PAIS</label><input type="text" name="empresa_pais" class="form-control" value="<?= $v('empresa_pais') ?>"></div>
     <div class="col-md-6 mb-2"><label class="form-label">REFERENCIA BANCARIA DA EMPRESA</label><input type="text" name="empresa_referencia_bancaria" class="form-control" value="<?= $v('empresa_referencia_bancaria') ?>"></div>
     <div class="col-md-6 mb-2"><label class="form-label">CHAVE PIX</label><input type="text" name="empresa_chave_pix" class="form-control" value="<?= $v('empresa_chave_pix') ?>"></div>
     <div class="col-md-4 mb-2"><label class="form-label">BANCO</label><input type="text" name="empresa_banco" class="form-control" value="<?= $v('empresa_banco') ?>"></div>
@@ -73,3 +71,35 @@ $v = fn($k) => e($t[$k] ?? '');
     <div class="col-md-2 mb-2"><label class="form-label">OPERACAO</label><input type="text" name="empresa_operacao" class="form-control" value="<?= $v('empresa_operacao') ?>"></div>
     <div class="col-md-4 mb-2"><label class="form-label">FAVORECIDO</label><input type="text" name="empresa_favorecido" class="form-control" value="<?= $v('empresa_favorecido') ?>"></div>
 </div>
+<script>
+(function(){
+    function apenasNumeros(s){ return (s||'').replace(/\D/g,''); }
+    function buscarCep(cepInput, fieldPrefix){
+        var cep=apenasNumeros(cepInput.value);
+        if(cep.length!==8)return;
+        var form=cepInput.closest('form');
+        if(!form)return;
+        var endereco=form.querySelector('[name="'+(fieldPrefix||'')+'endereco"]');
+        var bairro=form.querySelector('[name="'+(fieldPrefix||'')+'bairro"]');
+        var cidade=form.querySelector('[name="'+(fieldPrefix||'')+'cidade"]');
+        var estado=form.querySelector('[name="'+(fieldPrefix||'')+'estado"]');
+        if(!endereco&&!bairro&&!cidade&&!estado)return;
+        fetch('https://viacep.com.br/ws/'+cep+'/json/').then(function(r){return r.json();}).then(function(d){
+            if(d.erro){if(typeof alert==='function')alert('CEP não encontrado.');return;}
+            if(endereco)endereco.value=d.logradouro||'';
+            if(bairro)bairro.value=d.bairro||'';
+            if(cidade)cidade.value=d.localidade||'';
+            if(estado)estado.value=d.uf||'';
+            cepInput.value=(d.cep||cep).replace(/^(\d{5})(\d{3})$/,'$1-$2');
+        }).catch(function(){if(typeof alert==='function')alert('Erro ao buscar CEP. Tente novamente.');});
+    }
+    document.querySelectorAll('input[name="cep"]').forEach(function(inp){
+        inp.addEventListener('blur',function(){buscarCep(this,'');});
+        inp.addEventListener('input',function(){if(apenasNumeros(this.value).length===8)buscarCep(this,'');});
+    });
+    document.querySelectorAll('input[name="empresa_cep"]').forEach(function(inp){
+        inp.addEventListener('blur',function(){buscarCep(this,'empresa_');});
+        inp.addEventListener('input',function(){if(apenasNumeros(this.value).length===8)buscarCep(this,'empresa_');});
+    });
+})();
+</script>
