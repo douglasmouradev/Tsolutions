@@ -379,6 +379,8 @@ class TicketController
         $updateData = ['status' => $newStatus];
         if ($newStatus === 'fechado' || $newStatus === 'cancelado') {
             $updateData['closed_at'] = date('Y-m-d H:i:s');
+        } elseif (in_array($newStatus, ['aberto', 'em_andamento'], true)) {
+            $updateData['closed_at'] = null;
         }
 
         $this->ticketModel->update($id, $updateData);
@@ -558,6 +560,36 @@ class TicketController
 
         header('Content-Type: ' . $attachment['mime_type']);
         header('Content-Disposition: attachment; filename="' . str_replace('"', '\\"', $attachment['original_name']) . '"');
+        header('Content-Length: ' . $attachment['size_bytes']);
+        readfile($path);
+        exit;
+    }
+
+    public function viewAttachment(int $ticketId, int $attachmentId): void
+    {
+        $ticket = $this->ticketModel->find($ticketId);
+        if (!$ticket || !$this->authService->canViewTicket($ticket)) {
+            http_response_code(403);
+            echo 'Acesso negado.';
+            exit;
+        }
+
+        $attachment = $this->attachmentModel->find($attachmentId);
+        if (!$attachment || (int) $attachment['ticket_id'] !== $ticketId) {
+            http_response_code(404);
+            echo 'Anexo não encontrado.';
+            exit;
+        }
+
+        $path = $this->uploadService->getFilePath($attachment['stored_name']);
+        if (!file_exists($path)) {
+            http_response_code(404);
+            echo 'Arquivo não encontrado.';
+            exit;
+        }
+
+        header('Content-Type: ' . $attachment['mime_type']);
+        header('Content-Disposition: inline; filename="' . str_replace('"', '\\"', $attachment['original_name']) . '"');
         header('Content-Length: ' . $attachment['size_bytes']);
         readfile($path);
         exit;

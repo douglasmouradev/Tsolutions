@@ -97,7 +97,7 @@ require __DIR__ . '/../partials/nav.php';
     </div>
     <?php endif; ?>
 
-    <?php if ($canManage && in_array($ticket['status'], ['aberto', 'em_andamento'], true)): ?>
+    <?php if ($canManage): ?>
     <div class="card mb-4">
         <div class="card-header">Alterar status</div>
         <div class="card-body">
@@ -105,10 +105,11 @@ require __DIR__ . '/../partials/nav.php';
                 <?= csrf_field() ?>
                 <div class="col-auto">
                     <select name="status" class="form-select form-select-sm" required>
+                        <option value="aberto" <?= $ticket['status'] === 'aberto' ? 'selected' : '' ?>>Aberto</option>
                         <option value="em_andamento" <?= $ticket['status'] === 'em_andamento' ? 'selected' : '' ?>>Em andamento</option>
                         <?php if ($canClose): ?>
-                        <option value="fechado">Fechado</option>
-                        <option value="cancelado">Cancelado</option>
+                        <option value="fechado" <?= $ticket['status'] === 'fechado' ? 'selected' : '' ?>>Fechado</option>
+                        <option value="cancelado" <?= $ticket['status'] === 'cancelado' ? 'selected' : '' ?>>Cancelado</option>
                         <?php endif; ?>
                     </select>
                 </div>
@@ -197,7 +198,10 @@ require __DIR__ . '/../partials/nav.php';
                 <?php foreach ($attachments as $a): ?>
                 <div class="list-group-item d-flex justify-content-between align-items-center">
                     <span><i class="bi bi-file-earmark"></i> <?= e($a['original_name']) ?> (<?= number_format($a['size_bytes'] / 1024, 1) ?> KB)</span>
-                    <a href="/tickets/<?= $ticket['id'] ?>/attachments/<?= $a['id'] ?>/download" class="btn btn-sm btn-outline-primary">Baixar</a>
+                    <div class="btn-group btn-group-sm">
+                        <a href="/tickets/<?= $ticket['id'] ?>/attachments/<?= $a['id'] ?>/view" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary">Visualizar</a>
+                        <a href="/tickets/<?= $ticket['id'] ?>/attachments/<?= $a['id'] ?>/download" class="btn btn-outline-primary">Baixar</a>
+                    </div>
                 </div>
                 <?php endforeach; ?>
                 <?php if (empty($attachments)): ?>

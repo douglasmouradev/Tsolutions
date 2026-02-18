@@ -160,6 +160,10 @@ $routes = [
             $authMiddleware->handle();
             $ticketController->downloadAttachment($id, $aid);
         },
+        '/tickets/{id}/attachments/{aid}/view' => function (int $id, int $aid) use ($authMiddleware, $ticketController) {
+            $authMiddleware->handle();
+            $ticketController->viewAttachment($id, $aid);
+        },
     ],
     'POST' => [
         '/login' => fn() => $authController->login(),
